@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:hana_sdk/core/controllers/form_controller.dart';
 import 'package:hana_sdk/core/elements/dynamic_bottom_navbar/dynamic_bottom_navbar_model.dart';
@@ -45,6 +44,7 @@ class _BottomNavbarPageWrapperState extends State<BottomNavbarPageWrapper> {
     return widget.sideNavModel?.items?.map((item) {
       String pageName = item.onClickData?.pageName ?? 'home';
       return DynamicFormScreen(
+        formController: widget.formController,
         key: ValueKey(pageName),
         pageName: pageName,
         token: '1',
@@ -56,6 +56,7 @@ class _BottomNavbarPageWrapperState extends State<BottomNavbarPageWrapper> {
     return widget.bottomNavModel?.items?.map((navItem) {
       String pageName = navItem.onClickData?.pageName ?? 'home';
       return DynamicFormScreen(
+        formController: widget.formController,
         key: ValueKey(pageName),
         pageName: pageName,
         token: '1',
@@ -84,6 +85,7 @@ class _BottomNavbarPageWrapperState extends State<BottomNavbarPageWrapper> {
       context,
       MaterialPageRoute(builder: (context) {
         return DynamicFormScreen(
+          formController: widget.formController,
           pageName: pageName,
           token: '1',
         );

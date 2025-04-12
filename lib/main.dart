@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +20,7 @@ import 'package:hana_sdk/core/services/go_router_service.dart';
 import 'package:hana_sdk/core/services/shared_pref.dart';
 import 'package:hana_sdk/di/di.dart';
 import 'package:hana_sdk/firebase_options.dart';
+import 'package:hana_sdk/screens/splash_screen/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -119,6 +119,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final router = getRouter(home: SplashScreen());
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,

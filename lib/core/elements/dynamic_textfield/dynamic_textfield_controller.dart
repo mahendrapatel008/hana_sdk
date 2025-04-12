@@ -323,6 +323,7 @@ class _DynamicTextFieldControllerState extends State<DynamicTextFieldController>
             onChanged: (value) async {
               widget.formController
                   .saveFieldValue(displayController.name ?? '', value);
+              saveFieldValues(displayController.name ?? '', value);
               // _validate(value, displayController);
               if (displayController.saveAs != null &&
                   displayController.saveAs!.isNotEmpty) {

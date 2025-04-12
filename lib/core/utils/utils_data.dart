@@ -227,6 +227,14 @@ Color? hexToColor(String? hex) {
   }
 }
 
+void saveFieldValues(String fieldName, dynamic value) {
+  formData[fieldName] = value;
+}
+
+Map<String, dynamic> getsaveFieldValues() {
+  return formData;
+}
+
 // Helper function to check if the string contains only valid hex characters (0-9, A-F)
 bool _isValidHex(String hex) {
   final hexPattern = RegExp(r'^[0-9A-Fa-f]+$');
@@ -261,7 +269,7 @@ class GlobalKeyProvider {
 }
 
 final globalKeyProvider = GlobalKeyProvider();
-
+Map<String, dynamic> formData = {};
 List<String> savePageData = [];
 var hanaVar1;
 List<Map<String, dynamic>>? universalListData;

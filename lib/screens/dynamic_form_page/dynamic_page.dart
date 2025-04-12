@@ -34,13 +34,17 @@ import 'package:hana_sdk/core/utils/utils_data.dart';
 class DynamicFormScreen extends StatefulWidget {
   final String token;
   final String pageName;
+  final String? appName;
   final bool? isFromList;
+  final form.FormController formController;
   final Map<String, dynamic>? listData;
 
   const DynamicFormScreen({
     super.key,
     required this.token,
     required this.pageName,
+    this.appName,
+    required this.formController,
     this.isFromList,
     this.listData,
   });
@@ -57,7 +61,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
   bool isLoading = false;
   bool isPageLoad = false;
   DynamicAppbarModel dynamicAppbarModel = DynamicAppbarModel();
-  form.FormController formController = form.FormController();
+
   String dynamicPageName = '';
   String dynamicModuleName = '';
   DynamicForm dynamicForm = DynamicForm(form: [], name: '');
@@ -67,7 +71,6 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
   String sharedPrefData = '';
   String sharedPrefDataQuery = '';
   Future<void> _initFunctions() async {
-    formController = form.FormController();
     // sharedPrefData = SharedPrefs().getString(widget.pageName) ?? '';
     // sharedPrefDataQuery =
     //     SharedPrefs().getString("${widget.pageName}query") ?? '';
@@ -130,14 +133,24 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
     // }
 
     // Call the background data fetch function
+    log('this is appName: ${widget.appName}');
+    log('this is appName!: ${widget.appName != null}');
+    log('this is appName@: ${widget.appName!.isNotEmpty}');
+    log('this is appName#: ${widget.appName != null && widget.appName!.isNotEmpty}');
+    if (widget.appName != null && widget.appName!.isNotEmpty) {
+      SharedPrefs().appName = widget.appName;
+      log('this is appName^: ${SharedPrefs().appName}');
+    }
+    SharedPrefs().appModuleName = 'mobileappdesign';
+
     await _fetchAndUpdateDataInBackground();
   }
 
   Future<void> _fetchAndUpdateDataInBackground() async {
     ApiFormRepository apiFormRepository = ApiFormRepository();
-    formController.clearFieldNameData();
-    formController.savePrerequisitesNameData.clear();
-    formController.saveFieldNameLookUp(dynamicForm.dynamicLookup, null);
+    widget.formController.clearFieldNameData();
+    widget.formController.savePrerequisitesNameData.clear();
+    widget.formController.saveFieldNameLookUp(dynamicForm.dynamicLookup, null);
 
     dynamicForm = await apiFormRepository.getModuleData(
       appName: widget.pageName == 'app-login'
@@ -145,7 +158,9 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
           : SharedPrefs().appName,
       moduleName: widget.pageName == 'app-login'
           ? 'mobileappdesign'
-          : SharedPrefs().appModuleName,
+          : SharedPrefs().appModuleName.isEmpty
+              ? 'mobileappdesign'
+              : SharedPrefs().appModuleName,
       query: {"sectionData.mobilejson.name": widget.pageName},
       limit: 100,
     );
@@ -186,7 +201,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
         DynamicData dynamicData = DynamicData(dynamicData: data);
         Map<String, dynamic> dynamicDataKeyValue =
             convertDynamicDataToKeyValue(dynamicData);
-        formController.saveFieldNameData(dynamicDataKeyValue, false);
+        widget.formController.saveFieldNameData(dynamicDataKeyValue, false);
       }
     }
     dynamicPageName = '';
@@ -281,7 +296,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
 
       // Save the processed key-value data
       // log("Converted Key-Value DataA: ${json.encoder.convert(dynamicDataKeyValue)}");
-      formController.saveFieldNameData(dynamicDataKeyValue, false);
+      widget.formController.saveFieldNameData(dynamicDataKeyValue, false);
 
       // Log the updated formController dynamic data
       // log("Converted Key-Value DataB: ${json.encoder.convert(formController.dynamicData)}");
@@ -353,7 +368,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
           "type": section.fields["type"],
           "items": section.fields,
         });
-        formElement.formController = formController;
+        formElement.formController = widget.formController;
         var apiElementController =
             ApiElementController(formSectionsElements: formElement);
         formWidgets = apiElementController.buildFormElement();
@@ -368,7 +383,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                 "type": field['type'],
                 "items": field,
               });
-              formElement.formController = formController;
+              formElement.formController = widget.formController;
               var apiElementController =
                   ApiElementController(formSectionsElements: formElement);
               appBarWidgets.add(apiElementController.buildFormElement());
@@ -377,282 +392,287 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
         }
       }
     }
-    return WillPopScope(
-      onWillPop: () async {
-        print("EasyLoading>>>>>>will$savePageData");
-        if (savePageData.length == 1) {
-          _showExitDialog(context);
-          return false;
-        }
-        savePageData.removeLast();
-        dynamicPageNameString = savePageData[savePageData.length - 1];
-        Navigator.pop(context);
-        return true;
-      },
-      child: BlocListener<AuthBloc, AuthBlocState>(
-        listener: (context, state) {
-          if (state is AuthBlocStateDataRefresh) {
-            // SchedulerBinding.instance.addPostFrameCallback((_) =>
-            _initFunctions1(
-              state.url,
-              state.mapData,
-              state.headers,
-              state.onClickData,
-              state.serverError,
-              state.saveToLocal,
-              state.clearFromLocal,
-              state.previousClear,
-            );
-            // );
-            // _initFunctions1(
-            //     state.url,
-            //     state.mapData,
-            //     state.headers,
-            //     state.onClickData,
-            //     state.serverError,
-            //     state.saveToLocal,
-            //     state.previousClear);
-          }
-          if (state is AuthBlocStateEmailNotFound) {}
-          if (state is AuthBlocStateLoading) {
-            setState(() {
-              isLoading = true;
-            });
-          } else if (state is AuthBlocStateLoginSuccess) {
-            setState(() {
-              isLoading = false;
-            });
-            EasyLoading.showToast('Login Successful...');
-            context.push(
-              '/dynamic_form',
-              extra: {'token': '1', 'pageName': state.pageName},
-            );
-          } else if (state is AuthBlocStateRegisterSuccess) {
-            setState(() {
-              isLoading = false;
-            });
-            EasyLoading.showToast('Register Successful...');
-            context.push(
-              '/dynamic_form',
-              extra: {'token': '1', 'pageName': state.pageName},
-            );
-          } else if (state is AuthBlocStateRegisterWithOtpSuccess) {
-            setState(() {
-              isLoading = false;
-            });
-            EasyLoading.showToast('OTP send Successfully...');
-            context.push(
-              '/dynamic_form',
-              extra: {'token': '1', 'pageName': 'verify-otp'},
-            );
-          } else if (state is AuthBlocStateLoginWithOtpSuccess) {
-            setState(() {
-              isLoading = false;
-            });
-            EasyLoading.showToast('OTP send Successfully...');
-            context.push(
-              '/dynamic_form',
-              extra: {'token': '1', 'pageName': 'verify-otp'},
-            );
-          } else if (state is AuthBlocStateOtpVerified) {
-            setState(() {
-              isLoading = false;
-            });
-            EasyLoading.showToast('OTP verify Successfully...');
-            context.push(
-              '/dynamic_form',
-              extra: {'token': '1', 'pageName': state.pageName},
-            );
-          } else if (state is AuthBlocStateLogoutSuccess) {
-            setState(() {
-              isLoading = false;
-            });
-            FirebaseMessaging.instance.unsubscribeFromTopic(general_topic);
-            SharedPrefs().isLoggedIn = false;
-            SharedPrefs.clearSharedPref();
-            Navigator.pop(context);
-            Navigator.popUntil(context, (route) => route.isFirst);
-            context.pushReplacement(
-              '/splash',
-              // extra: {'selectedIndex': 0},
-            );
-            EasyLoading.showToast('Logout Successfully...');
-          } else if (state is AuthBlocStateCommonLogin) {
-            setState(() {
-              isLoading = false;
-            });
-            if (state.message
-                    .toString()
-                    .contains("OTP verified, login successful") ||
-                state.message.toString().contains("Login successful")) {
-              Navigator.popUntil(context, (route) => route.isFirst);
-              SharedPrefs().isLoggedIn = true;
-              savePageData.clear();
-            }
-            EasyLoading.showToast(state.message.toString());
-            if (state.pageName.isNotEmpty) {
-              if (dynamicPageName == dynamicPageNameString) {
-                handleNavigation(state.pageName, state.onClickData, context);
-                if (state.onClickData?.pageReplacement == true) {
-                  context.pushReplacement(
-                    '/dynamic_form',
-                    extra: {'token': '1', 'pageName': state.pageName},
-                  );
-                } else {
-                  context.push(
-                    '/dynamic_form',
-                    extra: {'token': '1', 'pageName': state.pageName},
-                  );
-                }
+    return
+        // WillPopScope(
+        //   onWillPop: () async {
+        //     print("EasyLoading>>>>>>will$savePageData");
+        //     if (savePageData.length == 1) {
+        //       _showExitDialog(context);
+        //       return false;
+        //     }
+        //     savePageData.removeLast();
+        //     dynamicPageNameString = savePageData[savePageData.length - 1];
+        //     Navigator.pop(context);
+        //     return true;
+        //   },
+        // child:
+        BlocListener<AuthBloc, AuthBlocState>(
+            listener: (context, state) {
+              if (state is AuthBlocStateDataRefresh) {
+                // SchedulerBinding.instance.addPostFrameCallback((_) =>
+                _initFunctions1(
+                  state.url,
+                  state.mapData,
+                  state.headers,
+                  state.onClickData,
+                  state.serverError,
+                  state.saveToLocal,
+                  state.clearFromLocal,
+                  state.previousClear,
+                );
+                // );
+                // _initFunctions1(
+                //     state.url,
+                //     state.mapData,
+                //     state.headers,
+                //     state.onClickData,
+                //     state.serverError,
+                //     state.saveToLocal,
+                //     state.previousClear);
               }
-            }
-          } else if (state is AuthBlocStateCommonSubmitData) {
-            setState(() {
-              isLoading = false;
-            });
-            EasyLoading.showToast(state.message.toString());
-            if (state.pageName.isNotEmpty) {
-              handleNavigation(state.pageName, state.onClickData, context);
-              context.push(
-                '/dynamic_form',
-                extra: {'token': '1', 'pageName': state.pageName},
-              );
-            }
-          } else if (state is AuthBlocStateCommonDeleteAccountData) {
-            setState(() {
-              isLoading = false;
-            });
-            EasyLoading.showToast(state.message.toString());
-            if (state.pageName.isNotEmpty) {
-              if (state.pageName == "splash") {
+              if (state is AuthBlocStateEmailNotFound) {}
+              if (state is AuthBlocStateLoading) {
+                setState(() {
+                  isLoading = true;
+                });
+              } else if (state is AuthBlocStateLoginSuccess) {
+                setState(() {
+                  isLoading = false;
+                });
+                EasyLoading.showToast('Login Successful...');
+                context.push(
+                  '/dynamic_form',
+                  extra: {'token': '1', 'pageName': state.pageName},
+                );
+              } else if (state is AuthBlocStateRegisterSuccess) {
+                setState(() {
+                  isLoading = false;
+                });
+                EasyLoading.showToast('Register Successful...');
+                context.push(
+                  '/dynamic_form',
+                  extra: {'token': '1', 'pageName': state.pageName},
+                );
+              } else if (state is AuthBlocStateRegisterWithOtpSuccess) {
+                setState(() {
+                  isLoading = false;
+                });
+                EasyLoading.showToast('OTP send Successfully...');
+                context.push(
+                  '/dynamic_form',
+                  extra: {'token': '1', 'pageName': 'verify-otp'},
+                );
+              } else if (state is AuthBlocStateLoginWithOtpSuccess) {
+                setState(() {
+                  isLoading = false;
+                });
+                EasyLoading.showToast('OTP send Successfully...');
+                context.push(
+                  '/dynamic_form',
+                  extra: {'token': '1', 'pageName': 'verify-otp'},
+                );
+              } else if (state is AuthBlocStateOtpVerified) {
+                setState(() {
+                  isLoading = false;
+                });
+                EasyLoading.showToast('OTP verify Successfully...');
+                context.push(
+                  '/dynamic_form',
+                  extra: {'token': '1', 'pageName': state.pageName},
+                );
+              } else if (state is AuthBlocStateLogoutSuccess) {
+                setState(() {
+                  isLoading = false;
+                });
+                FirebaseMessaging.instance.unsubscribeFromTopic(general_topic);
+                SharedPrefs().isLoggedIn = false;
                 SharedPrefs.clearSharedPref();
-                savePageData.clear();
+                Navigator.pop(context);
                 Navigator.popUntil(context, (route) => route.isFirst);
                 context.pushReplacement(
                   '/splash',
                   // extra: {'selectedIndex': 0},
                 );
-              } else {
-                handleNavigation(state.pageName, state.onClickData, context);
-                context.push(
-                  '/dynamic_form',
-                  extra: {'token': '1', 'pageName': state.pageName},
-                );
-              }
-            }
-          } else if (state is AuthBlocStateRegisterError) {
-            setState(() {
-              isLoading = false;
-            });
-            // EasyLoading.showToast('Error - ${state.errorMessage.toString()}');
-            if (dynamicPageName == dynamicPageNameString) {
-              DynamicPopupDialog.showPopupDialog(
-                model: DynamicPopupModel(
-                  title: "Error",
-                  content:
-                      state.serverError != null && state.serverError!.isNotEmpty
+                EasyLoading.showToast('Logout Successfully...');
+              } else if (state is AuthBlocStateCommonLogin) {
+                setState(() {
+                  isLoading = false;
+                });
+                if (state.message
+                        .toString()
+                        .contains("OTP verified, login successful") ||
+                    state.message.toString().contains("Login successful")) {
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                  SharedPrefs().isLoggedIn = true;
+                  savePageData.clear();
+                }
+                EasyLoading.showToast(state.message.toString());
+                if (state.pageName.isNotEmpty) {
+                  if (dynamicPageName == dynamicPageNameString) {
+                    handleNavigation(
+                        state.pageName, state.onClickData, context);
+                    if (state.onClickData?.pageReplacement == true) {
+                      context.pushReplacement(
+                        '/dynamic_form',
+                        extra: {'token': '1', 'pageName': state.pageName},
+                      );
+                    } else {
+                      context.push(
+                        '/dynamic_form',
+                        extra: {'token': '1', 'pageName': state.pageName},
+                      );
+                    }
+                  }
+                }
+              } else if (state is AuthBlocStateCommonSubmitData) {
+                setState(() {
+                  isLoading = false;
+                });
+                EasyLoading.showToast(state.message.toString());
+                if (state.pageName.isNotEmpty) {
+                  handleNavigation(state.pageName, state.onClickData, context);
+                  context.push(
+                    '/dynamic_form',
+                    extra: {'token': '1', 'pageName': state.pageName},
+                  );
+                }
+              } else if (state is AuthBlocStateCommonDeleteAccountData) {
+                setState(() {
+                  isLoading = false;
+                });
+                EasyLoading.showToast(state.message.toString());
+                if (state.pageName.isNotEmpty) {
+                  if (state.pageName == "splash") {
+                    SharedPrefs.clearSharedPref();
+                    savePageData.clear();
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                    context.pushReplacement(
+                      '/splash',
+                      // extra: {'selectedIndex': 0},
+                    );
+                  } else {
+                    handleNavigation(
+                        state.pageName, state.onClickData, context);
+                    context.push(
+                      '/dynamic_form',
+                      extra: {'token': '1', 'pageName': state.pageName},
+                    );
+                  }
+                }
+              } else if (state is AuthBlocStateRegisterError) {
+                setState(() {
+                  isLoading = false;
+                });
+                // EasyLoading.showToast('Error - ${state.errorMessage.toString()}');
+                if (dynamicPageName == dynamicPageNameString) {
+                  DynamicPopupDialog.showPopupDialog(
+                    model: DynamicPopupModel(
+                      title: "Error",
+                      content: state.serverError != null &&
+                              state.serverError!.isNotEmpty
                           ? state.serverError
                           : state.errorMessage,
-                  confirmButtonText: "OK",
-                  // cancelButtonText: "No",
-                  backgroundColor: Colors.white,
-                  borderRadius: 10,
-                ),
-                formController: formController,
-                context: context,
-              );
-            }
-          } else {
-            setState(() {
-              isLoading = false;
-            });
-          }
-        },
-        child: BlocListener<RefreshBloc, RefreshState>(
-          listener: (context, state) {
-            if (state is RefreshLoadedState) {
-              appBarWidgets.clear();
-              setState(() {
-                isPageLoad = true;
-                isLoading = false;
-              });
-              // SchedulerBinding.instance
-              //     .addPostFrameCallback((_) => _initFunctions());
-            }
-          },
-          child: dynamicAppbarModel.title != null
-              ? Scaffold(
-                  // appBar: DynamicAppbarController(
-                  //     controller: dynamicAppbarModel, formController: formController),
-                  appBar: DynamicAppbar(
-                    controller: dynamicAppbarModel,
-                    formWidgets: appBarWidgets,
-                    formController: formController,
-                    onPressed: () {
-                      if (dynamicAppbarModel.backImgUrl?.onClickData?.isBack ??
-                          true) {
-                        Navigator.pop(context, true);
-                        savePageData.removeLast();
-                      } else {
-                        var pageName = dynamicAppbarModel
-                            .backImgUrl?.onClickData?.pageName;
-                        if (pageName != null && pageName.isNotEmpty) {
-                          context.pop();
-                          context.push(
-                            '/dynamic_form',
-                            extra: {'token': '1', 'pageName': pageName},
-                          );
-                        }
-                      }
-                    },
-                  ),
-                  body: isLoading
-                      ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
-                      : RefreshIndicator(
-                          onRefresh: _refresh,
-                          displacement:
-                              50.0, // Distance to drag before showing refresh
-                          color: Colors.blue, // Progress indicator color
-                          backgroundColor:
-                              Colors.white, // Background of refresh indicator
-                          strokeWidth:
-                              3.0, // Thickness of the refresh indicator
-                          child: formWidgets ?? Container()),
-                  floatingActionButton: FloatingActionButton(
-                    onPressed: () {
-                      SchedulerBinding.instance
-                          .addPostFrameCallback((_) => _initFunctions());
-                    },
-                    child: const Icon(Icons.refresh),
-                  ),
-                )
-              : Scaffold(
-                  body: isLoading
-                      ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
-                      : RefreshIndicator(
-                          onRefresh: _refresh,
-                          displacement:
-                              50.0, // Distance to drag before showing refresh
-                          color: Colors.blue, // Progress indicator color
-                          backgroundColor:
-                              Colors.white, // Background of refresh indicator
-                          strokeWidth:
-                              3.0, // Thickness of the refresh indicator
-                          child: formWidgets ?? Container()),
-                  floatingActionButton: FloatingActionButton(
-                    onPressed: () {
-                      SchedulerBinding.instance
-                          .addPostFrameCallback((_) => _initFunctions());
-                    },
-                    child: const Icon(Icons.refresh),
-                  ),
-                ),
-        ),
-      ),
-    );
+                      confirmButtonText: "OK",
+                      // cancelButtonText: "No",
+                      backgroundColor: Colors.white,
+                      borderRadius: 10,
+                    ),
+                    formController: widget.formController,
+                    context: context,
+                  );
+                }
+              } else {
+                setState(() {
+                  isLoading = false;
+                });
+              }
+            },
+            child: BlocListener<RefreshBloc, RefreshState>(
+              listener: (context, state) {
+                if (state is RefreshLoadedState) {
+                  appBarWidgets.clear();
+                  setState(() {
+                    isPageLoad = true;
+                    isLoading = false;
+                  });
+                  // SchedulerBinding.instance
+                  //     .addPostFrameCallback((_) => _initFunctions());
+                }
+              },
+              child: dynamicAppbarModel.title != null
+                  ? Scaffold(
+                      // appBar: DynamicAppbarController(
+                      //     controller: dynamicAppbarModel, formController: formController),
+                      appBar: DynamicAppbar(
+                        controller: dynamicAppbarModel,
+                        formWidgets: appBarWidgets,
+                        formController: widget.formController,
+                        onPressed: () {
+                          if (dynamicAppbarModel
+                                  .backImgUrl?.onClickData?.isBack ??
+                              true) {
+                            Navigator.pop(context, true);
+                            savePageData.removeLast();
+                          } else {
+                            var pageName = dynamicAppbarModel
+                                .backImgUrl?.onClickData?.pageName;
+                            if (pageName != null && pageName.isNotEmpty) {
+                              context.pop();
+                              context.push(
+                                '/dynamic_form',
+                                extra: {'token': '1', 'pageName': pageName},
+                              );
+                            }
+                          }
+                        },
+                      ),
+                      body: isLoading
+                          ? const Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : RefreshIndicator(
+                              onRefresh: _refresh,
+                              displacement:
+                                  50.0, // Distance to drag before showing refresh
+                              color: Colors.blue, // Progress indicator color
+                              backgroundColor: Colors
+                                  .white, // Background of refresh indicator
+                              strokeWidth:
+                                  3.0, // Thickness of the refresh indicator
+                              child: formWidgets ?? Container()),
+                      floatingActionButton: FloatingActionButton(
+                        onPressed: () {
+                          SchedulerBinding.instance
+                              .addPostFrameCallback((_) => _initFunctions());
+                        },
+                        child: const Icon(Icons.refresh),
+                      ),
+                    )
+                  : Scaffold(
+                      body: isLoading
+                          ? const Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : RefreshIndicator(
+                              onRefresh: _refresh,
+                              displacement:
+                                  50.0, // Distance to drag before showing refresh
+                              color: Colors.blue, // Progress indicator color
+                              backgroundColor: Colors
+                                  .white, // Background of refresh indicator
+                              strokeWidth:
+                                  3.0, // Thickness of the refresh indicator
+                              child: formWidgets ?? Container()),
+                      floatingActionButton: FloatingActionButton(
+                        onPressed: () {
+                          SchedulerBinding.instance
+                              .addPostFrameCallback((_) => _initFunctions());
+                        },
+                        child: const Icon(Icons.refresh),
+                      ),
+                    ),
+            ));
+    //   ),
+    // );
   }
 }

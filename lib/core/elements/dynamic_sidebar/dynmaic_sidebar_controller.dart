@@ -32,6 +32,7 @@ class _SidebarPageState extends State<SidebarPage> {
     return widget.model.items!.map((item) {
       String pageName = item.onClickData?.pageName ?? 'home';
       return DynamicFormScreen(
+        formController: widget.formController,
         key: ValueKey(pageName), // Unique key for each page
         pageName: pageName,
         token: '1',
@@ -44,9 +45,9 @@ class _SidebarPageState extends State<SidebarPage> {
     bool containsAllPrerequisites = false;
     if (widget.model.isHideAndShow ?? false) {
       containsAllPrerequisites = widget.model.prerequisite != null &&
-          widget.model.prerequisite!.every((prerequisite) =>
-              widget
-              .formController.savePrerequisitesNameData.contains(prerequisite.name));
+          widget.model.prerequisite!.every((prerequisite) => widget
+              .formController.savePrerequisitesNameData
+              .contains(prerequisite.name));
     }
     return !containsAllPrerequisites
         ? Scaffold(
