@@ -6,6 +6,7 @@ import 'package:hana_sdk/core/services/shared_pref.dart';
 
 class FormController extends ChangeNotifier {
   Map<String, dynamic> formData = {};
+  List<Function(Map<String, dynamic>)>? onPressed;
   List<String> formNameData = [];
   Map<String, dynamic> saveDynamicData = {};
   Map<String, dynamic> dynamicData = {};

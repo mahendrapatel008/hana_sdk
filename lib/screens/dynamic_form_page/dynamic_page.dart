@@ -38,7 +38,7 @@ class DynamicFormScreen extends StatefulWidget {
   final bool? isFromList;
   final form.FormController formController;
   final Map<String, dynamic>? listData;
-
+  final List<dynamic Function(Map<String, dynamic>)>? onPressed;
   const DynamicFormScreen({
     super.key,
     required this.token,
@@ -47,6 +47,7 @@ class DynamicFormScreen extends StatefulWidget {
     required this.formController,
     this.isFromList,
     this.listData,
+    this.onPressed,
   });
 
   @override
@@ -324,6 +325,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
 ========================================
 ''');
     super.initState();
+    widget.formController.onPressed = widget.onPressed;
     SchedulerBinding.instance.addPostFrameCallback((_) => _initFunctions());
   }
 
@@ -507,20 +509,34 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                   savePageData.clear();
                 }
                 EasyLoading.showToast(state.message.toString());
-                if (state.pageName.isNotEmpty) {
-                  if (dynamicPageName == dynamicPageNameString) {
-                    handleNavigation(
-                        state.pageName, state.onClickData, context);
-                    if (state.onClickData?.pageReplacement == true) {
-                      context.pushReplacement(
-                        '/dynamic_form',
-                        extra: {'token': '1', 'pageName': state.pageName},
-                      );
-                    } else {
-                      context.push(
-                        '/dynamic_form',
-                        extra: {'token': '1', 'pageName': state.pageName},
-                      );
+                if (state.onClickData?.pageIndex != null) {
+                  log('call function called${state.onClickData?.pageIndex}');
+                  widget.formController
+                      .onPressed?[1](widget.formController.formData);
+                } else {
+                  if (state.pageName.isNotEmpty) {
+                    if (dynamicPageName == dynamicPageNameString) {
+                      handleNavigation(
+                          state.pageName, state.onClickData, context);
+                      if (state.onClickData?.pageReplacement == true) {
+                        context.pushReplacement(
+                          '/dynamic_form',
+                          extra: {
+                            'token': '1',
+                            'pageName': state.pageName,
+                            'onPressed': widget.formController.onPressed
+                          },
+                        );
+                      } else {
+                        context.push(
+                          '/dynamic_form',
+                          extra: {
+                            'token': '1',
+                            'pageName': state.pageName,
+                            'onPressed': widget.formController.onPressed
+                          },
+                        );
+                      }
                     }
                   }
                 }

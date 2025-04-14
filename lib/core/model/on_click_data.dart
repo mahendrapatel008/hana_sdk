@@ -6,7 +6,6 @@ import 'package:hana_sdk/core/elements/dynamic_sidebar/dynamic_sidebar_model.dar
 import 'package:hana_sdk/core/model/external_api_call_model.dart';
 import 'package:hana_sdk/core/model/image_picker_model.dart';
 
-
 class OnClickData {
   final String? id;
   final String? pageName;
@@ -27,6 +26,7 @@ class OnClickData {
   final String? popCount;
   final String? collectionToSubmit;
   final String? sectionName;
+  final int? pageIndex;
   final DynamicPopupModel? popupData;
   final List<ExternalApiCallModel>? apiCallData;
   final ImagePickerModel? imagePickerData;
@@ -57,6 +57,7 @@ class OnClickData {
     this.wantPreviousData,
     this.withCameraImage,
     this.hanaDependentRemoval,
+    this.pageIndex,
     this.reUseData,
     this.locationDatabase,
     this.isOtherRemove,
@@ -88,6 +89,7 @@ class OnClickData {
       'popCount': popCount,
       'collectionToSubmit': collectionToSubmit,
       'sectionName': sectionName,
+      'pageIndex': pageIndex,
       'isPreviousQueryClear': isPreviousQueryClear,
       'query': query,
       'navBarData': navBarData?.toJson(),
@@ -192,6 +194,7 @@ class OnClickData {
       sectionName: json['sectionName'],
       isPreviousQueryClear: json['isPreviousQueryClear'],
       pageReplacement: json['pageReplacement'],
+      pageIndex: json['pageIndex'],
       query: jsonLookupData,
       navBarData: parsedNavBarData,
       sideNavBarData: parsedSideNavBarData,

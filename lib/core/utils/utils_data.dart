@@ -256,7 +256,7 @@ String? getDynamicValue(
 
 Map<String, dynamic> reFormData = {};
 void saveReFieldValue(Map<String, dynamic> value) {
-  reFormData = value;
+  reFormData.addAll(value);
 }
 
 class GlobalKeyProvider {

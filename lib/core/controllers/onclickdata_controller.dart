@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:go_router/go_router.dart';
@@ -138,33 +137,54 @@ class DynamicOnClickHandler {
                     ));
               }
             } else {
-              if (pageName != null && pageName.isNotEmpty) {
-                if (pageName == 'app-login') {
-                  handleNavigation(pageName, onClickData, context);
-                  pageName = SharedPrefs().appFirstPageName;
-                  if (onClickData?.pageReplacement == true) {
-                    context.pushReplacement(
-                      '/dynamic_form',
-                      extra: {'token': '1', 'pageName': pageName},
-                    );
+              if (onClickData?.pageIndex != null) {
+                log('call function called');
+                formController.onPressed?[1](formController.formData);
+              } else {
+                if (pageName != null && pageName.isNotEmpty) {
+                  if (pageName == 'app-login') {
+                    handleNavigation(pageName, onClickData, context);
+                    pageName = SharedPrefs().appFirstPageName;
+                    if (onClickData?.pageReplacement == true) {
+                      context.pushReplacement(
+                        '/dynamic_form',
+                        extra: {
+                          'token': '1',
+                          'pageName': pageName,
+                          'onPressed': formController.onPressed
+                        },
+                      );
+                    } else {
+                      context.push(
+                        '/dynamic_form',
+                        extra: {
+                          'token': '1',
+                          'pageName': pageName,
+                          'onPressed': formController.onPressed
+                        },
+                      );
+                    }
                   } else {
-                    context.push(
-                      '/dynamic_form',
-                      extra: {'token': '1', 'pageName': pageName},
-                    );
-                  }
-                } else {
-                  handleNavigation(pageName, onClickData, context);
-                  if (onClickData?.pageReplacement == true) {
-                    context.pushReplacement(
-                      '/dynamic_form',
-                      extra: {'token': '1', 'pageName': pageName},
-                    );
-                  } else {
-                    context.push(
-                      '/dynamic_form',
-                      extra: {'token': '1', 'pageName': pageName},
-                    );
+                    handleNavigation(pageName, onClickData, context);
+                    if (onClickData?.pageReplacement == true) {
+                      context.pushReplacement(
+                        '/dynamic_form',
+                        extra: {
+                          'token': '1',
+                          'pageName': pageName,
+                          'onPressed': formController.onPressed
+                        },
+                      );
+                    } else {
+                      context.push(
+                        '/dynamic_form',
+                        extra: {
+                          'token': '1',
+                          'pageName': pageName,
+                          'onPressed': formController.onPressed
+                        },
+                      );
+                    }
                   }
                 }
               }
