@@ -510,9 +510,9 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                 }
                 EasyLoading.showToast(state.message.toString());
                 if (state.onClickData?.pageIndex != null) {
-                  log('call function called${state.onClickData?.pageIndex}');
                   widget.formController
-                      .onPressed?[1](widget.formController.formData);
+                          .onPressed?[state.onClickData!.pageIndex!](
+                      widget.formController.formData);
                 } else {
                   if (state.pageName.isNotEmpty) {
                     if (dynamicPageName == dynamicPageNameString) {
