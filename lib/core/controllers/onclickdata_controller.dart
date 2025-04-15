@@ -91,6 +91,7 @@ class DynamicOnClickHandler {
 
             if (onClickData?.wantPreviousData == true) {
               mapData.addAll(reFormData);
+              formController.formData.addAll(reFormData);
             }
             if (onClickData?.reUseData == true) {
               reFormData = formController.formData;
