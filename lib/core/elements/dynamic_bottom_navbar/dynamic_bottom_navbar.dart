@@ -48,6 +48,7 @@ class _BottomNavbarPageWrapperState extends State<BottomNavbarPageWrapper> {
         key: ValueKey(pageName),
         pageName: pageName,
         token: '1',
+        context: context,
       );
     }).toList();
   }
@@ -60,6 +61,7 @@ class _BottomNavbarPageWrapperState extends State<BottomNavbarPageWrapper> {
         key: ValueKey(pageName),
         pageName: pageName,
         token: '1',
+        context: context,
       );
     }).toList();
   }
@@ -88,6 +90,7 @@ class _BottomNavbarPageWrapperState extends State<BottomNavbarPageWrapper> {
           formController: widget.formController,
           pageName: pageName,
           token: '1',
+          context: context,
         );
       }),
     );

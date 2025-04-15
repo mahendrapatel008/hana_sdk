@@ -36,6 +36,7 @@ class _SidebarPageState extends State<SidebarPage> {
         key: ValueKey(pageName), // Unique key for each page
         pageName: pageName,
         token: '1',
+        context: context,
       );
     }).toList();
   }

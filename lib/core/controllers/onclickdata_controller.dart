@@ -151,7 +151,8 @@ class DynamicOnClickHandler {
                         extra: {
                           'token': '1',
                           'pageName': pageName,
-                          'onPressed': formController.onPressed
+                          'onPressed': formController.onPressed,
+                          'context': context,
                         },
                       );
                     } else {
@@ -160,7 +161,8 @@ class DynamicOnClickHandler {
                         extra: {
                           'token': '1',
                           'pageName': pageName,
-                          'onPressed': formController.onPressed
+                          'onPressed': formController.onPressed,
+                          'context': context,
                         },
                       );
                     }
@@ -172,7 +174,8 @@ class DynamicOnClickHandler {
                         extra: {
                           'token': '1',
                           'pageName': pageName,
-                          'onPressed': formController.onPressed
+                          'onPressed': formController.onPressed,
+                          'context': context,
                         },
                       );
                     } else {
@@ -181,7 +184,8 @@ class DynamicOnClickHandler {
                         extra: {
                           'token': '1',
                           'pageName': pageName,
-                          'onPressed': formController.onPressed
+                          'onPressed': formController.onPressed,
+                          'context': context,
                         },
                       );
                     }
@@ -202,12 +206,20 @@ class DynamicOnClickHandler {
                 if (onClickData?.pageReplacement == true) {
                   context.pushReplacement(
                     '/dynamic_form',
-                    extra: {'token': '1', 'pageName': pageName},
+                    extra: {
+                      'token': '1',
+                      'pageName': pageName,
+                      'context': context,
+                    },
                   );
                 } else {
                   context.push(
                     '/dynamic_form',
-                    extra: {'token': '1', 'pageName': pageName},
+                    extra: {
+                      'token': '1',
+                      'pageName': pageName,
+                      'context': context,
+                    },
                   );
                 }
               } else {
@@ -215,12 +227,20 @@ class DynamicOnClickHandler {
                 if (onClickData?.pageReplacement == true) {
                   context.pushReplacement(
                     '/dynamic_form',
-                    extra: {'token': '1', 'pageName': pageName},
+                    extra: {
+                      'token': '1',
+                      'pageName': pageName,
+                      'context': context,
+                    },
                   );
                 } else {
                   context.push(
                     '/dynamic_form',
-                    extra: {'token': '1', 'pageName': pageName},
+                    extra: {
+                      'token': '1',
+                      'pageName': pageName,
+                      'context': context,
+                    },
                   );
                 }
               }

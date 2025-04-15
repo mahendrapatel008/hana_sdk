@@ -27,6 +27,7 @@ GoRouter getRouter({required Widget home}) {
                 listData: extra['listData'],
                 isFromList: extra['isFromList'],
                 onPressed: extra['onPressed'],
+                context: extra['context'],
               );
             },
           ),
