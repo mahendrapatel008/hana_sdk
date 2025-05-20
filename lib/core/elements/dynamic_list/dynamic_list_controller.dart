@@ -27,6 +27,7 @@ class DynamicListController extends StatefulWidget {
 class _DynamicListControllerState extends State<DynamicListController> {
   List<dynamic>? itemsData;
   String locationResult = '';
+  bool isItemClicked = false; // Flag to track if item is clicked
   Map<String, dynamic> mergedData = {};
 
   @override
@@ -35,6 +36,11 @@ class _DynamicListControllerState extends State<DynamicListController> {
   }
 
   Future<void> _initLoad(DynamicListModel displayController) async {
+    if (isItemClicked) {
+      // Skip loading data when an item is clicked
+      return;
+    }
+
     dynamic dynamicData;
 
     if (displayController.dataKey != null &&
@@ -60,62 +66,6 @@ class _DynamicListControllerState extends State<DynamicListController> {
       } else {
         itemsData = displayController.item ?? [];
       }
-
-      // if (dynamicData is String) {
-      //   try {
-      //     final formattedData = dynamicData
-      //         .replaceAllMapped(
-      //       RegExp(r'([{\[,])\s*([a-zA-Z_][a-zA-Z0-9_]*):'),
-      //       (match) => '${match.group(1)}"${match.group(2)}":',
-      //     )
-      //         .replaceAllMapped(
-      //       RegExp(r':\s*([^,"\]}]+)([,}\]])'),
-      //       (match) {
-      //         final value = match.group(1)!;
-      //         if (RegExp(r'^\d+$').hasMatch(value)) {
-      //           return ': $value${match.group(2)}';
-      //         } else {
-      //           return ': "$value"${match.group(2)}';
-      //         }
-      //       },
-      //     );
-
-      //     log("UnFormatted Data: ${json.encoder.convert(formattedData)}");
-      //     log("Formatted Data: $formattedData");
-
-      //     final parsedData = jsonDecode(formattedData);
-      //     if (parsedData is List) {
-      //       itemsData = parsedData; // Update state after parsing
-      //     } else {
-      //       print("Parsed data is not a List: $parsedData");
-
-      //       itemsData = [];
-      //     }
-      //   } catch (e) {
-      //     print("Error parsing dynamic data: $e");
-
-      //     // Fix JSON formatting issues
-      //     log("UnFormatted Data: $dynamicData");
-      //     final formattedData = _fixJsonFormat(dynamicData);
-
-      //     log("Formatted Data: $formattedData");
-
-      //     // Parse the formatted JSON string
-      //     final parsedData = jsonDecode(formattedData);
-
-      //     if (parsedData is List) {
-      //       itemsData =
-      //           parsedData.cast<Map<String, dynamic>>(); // Ensure correct type
-      //     } else {
-      //       log("Parsed data is not a List: $parsedData");
-      //       itemsData = [];
-      //     }
-      //   }
-      // } else if (dynamicData is List) {
-      //   itemsData = dynamicData; // Directly assign if it's already a List
-      // } else {
-      //   itemsData = displayController.item ?? [];
-      // }
     } else {
       itemsData = displayController.item ?? [];
     }
@@ -141,31 +91,6 @@ class _DynamicListControllerState extends State<DynamicListController> {
       }
     }).toList();
   }
-
-  // String _fixJsonFormat(String data) {
-  //   // Step 1: Add quotes around keys
-  //   data = data.replaceAllMapped(
-  //     RegExp(r'([{\[,])\s*([a-zA-Z_][a-zA-Z0-9_]*):'),
-  //     (match) => '${match.group(1)}"${match.group(2)}":',
-  //   );
-
-  //   // Step 2: Wrap improperly split strings with commas into quotes
-  //   data = data.replaceAllMapped(
-  //     RegExp(r':\s*([^"\[\]{}]+,[^"\[\]{}]+)(?=\s*[}\],])'),
-  //     (match) {
-  //       final value = match.group(1)!;
-  //       return ': "${value.trim()}"'; // Wrap the entire value in quotes
-  //     },
-  //   );
-
-  //   // Step 3: Fix standalone unquoted string values
-  //   data = data.replaceAllMapped(
-  //     RegExp(r':\s*([^"\s].*?[^",\]}])(?=,|\})'),
-  //     (match) => ': "${match.group(1)!.trim()}"',
-  //   );
-
-  //   return data;
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -274,9 +199,7 @@ class _DynamicListControllerState extends State<DynamicListController> {
     return FutureBuilder<void>(
         future: _initLoad(displayController),
         builder: (context, snapshot) {
-          // if (itemsData == null) {
-
-          // }
+          log("This has been called");
           return !containsAllPrerequisites &&
                   (itemsData != null && itemsData!.isNotEmpty)
               ? SizedBox(
@@ -324,6 +247,9 @@ class _DynamicListControllerState extends State<DynamicListController> {
                             ? GestureDetector(
                                 onTap: displayController.onClickData != null
                                     ? () {
+                                        setState(() {
+                                          isItemClicked = true;
+                                        });
                                         if (itemsData?[index] != null &&
                                             itemsData![index]!
                                                 .toString()
@@ -342,6 +268,7 @@ class _DynamicListControllerState extends State<DynamicListController> {
                                         //     'isFromList': true,
                                         //   },
                                         // );
+                                        // Reset flag after the onClickData logic has executed
                                       }
                                     : () {},
                                 child: formWidgets,

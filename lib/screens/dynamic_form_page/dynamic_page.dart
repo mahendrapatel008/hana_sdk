@@ -73,6 +73,13 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
   DynamicData dynamicData = DynamicData(dynamicData: {});
   String sharedPrefData = '';
   String sharedPrefDataQuery = '';
+  late GoRouter _router;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _router = GoRouter.of(context); // Safe here
+  }
+
   Future<void> _initFunctions() async {
     // sharedPrefData = SharedPrefs().getString(widget.pageName) ?? '';
     // sharedPrefDataQuery =
@@ -445,7 +452,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                   isLoading = false;
                 });
                 EasyLoading.showToast('Login Successful...');
-                widget.context.push(
+                _router.push(
                   '/dynamic_form',
                   extra: {'token': '1', 'pageName': state.pageName},
                 );
@@ -454,7 +461,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                   isLoading = false;
                 });
                 EasyLoading.showToast('Register Successful...');
-                widget.context.push(
+                _router.push(
                   '/dynamic_form',
                   extra: {'token': '1', 'pageName': state.pageName},
                 );
@@ -463,7 +470,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                   isLoading = false;
                 });
                 EasyLoading.showToast('OTP send Successfully...');
-                widget.context.push(
+                _router.push(
                   '/dynamic_form',
                   extra: {'token': '1', 'pageName': 'verify-otp'},
                 );
@@ -472,7 +479,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                   isLoading = false;
                 });
                 EasyLoading.showToast('OTP send Successfully...');
-                widget.context.push(
+                _router.push(
                   '/dynamic_form',
                   extra: {'token': '1', 'pageName': 'verify-otp'},
                 );
@@ -481,7 +488,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                   isLoading = false;
                 });
                 EasyLoading.showToast('OTP verify Successfully...');
-                widget.context.push(
+                _router.push(
                   '/dynamic_form',
                   extra: {'token': '1', 'pageName': state.pageName},
                 );
@@ -494,7 +501,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                 SharedPrefs.clearSharedPref();
                 Navigator.pop(widget.context);
                 Navigator.popUntil(widget.context, (route) => route.isFirst);
-                widget.context.pushReplacement(
+                _router.pushReplacement(
                   '/splash',
                   // extra: {'selectedIndex': 0},
                 );
@@ -503,15 +510,15 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                 setState(() {
                   isLoading = false;
                 });
-                if (state.message
-                        .toString()
-                        .contains("OTP verified, login successful") ||
-                    state.message.toString().contains("Login successful")) {
-                  Navigator.popUntil(widget.context, (route) => route.isFirst);
-                  SharedPrefs().isLoggedIn = true;
-                  savePageData.clear();
-                }
-                EasyLoading.showToast(state.message.toString());
+                // if (state.message
+                //         .toString()
+                //         .contains("OTP verified, login successful") ||
+                //     state.message.toString().contains("Login successful")) {
+                //   Navigator.popUntil(widget.context, (route) => route.isFirst);
+                //   SharedPrefs().isLoggedIn = true;
+                //   savePageData.clear();
+                // }
+                // EasyLoading.showToast(state.message.toString());
                 if (state.onClickData?.pageIndex != null) {
                   widget.formController
                           .onPressed?[state.onClickData!.pageIndex!](
@@ -522,7 +529,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                       handleNavigation(
                           state.pageName, state.onClickData, widget.context);
                       if (state.onClickData?.pageReplacement == true) {
-                        widget.context.pushReplacement(
+                        _router.pushReplacement(
                           '/dynamic_form',
                           extra: {
                             'token': '1',
@@ -532,7 +539,8 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                           },
                         );
                       } else {
-                        widget.context.push(
+                        log("this is pageName: ${state.pageName}");
+                        _router.push(
                           '/dynamic_form',
                           extra: {
                             'token': '1',
@@ -553,7 +561,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                 if (state.pageName.isNotEmpty) {
                   handleNavigation(
                       state.pageName, state.onClickData, widget.context);
-                  widget.context.push(
+                  _router.push(
                     '/dynamic_form',
                     extra: {'token': '1', 'pageName': state.pageName},
                   );
@@ -569,14 +577,14 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                     savePageData.clear();
                     Navigator.popUntil(
                         widget.context, (route) => route.isFirst);
-                    widget.context.pushReplacement(
+                    _router.pushReplacement(
                       '/splash',
                       // extra: {'selectedIndex': 0},
                     );
                   } else {
                     handleNavigation(
                         state.pageName, state.onClickData, widget.context);
-                    widget.context.push(
+                    _router.push(
                       '/dynamic_form',
                       extra: {'token': '1', 'pageName': state.pageName},
                     );
@@ -641,7 +649,7 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                                 .backImgUrl?.onClickData?.pageName;
                             if (pageName != null && pageName.isNotEmpty) {
                               widget.context.pop();
-                              widget.context.push(
+                              _router.push(
                                 '/dynamic_form',
                                 extra: {'token': '1', 'pageName': pageName},
                               );

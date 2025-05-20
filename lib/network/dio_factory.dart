@@ -17,6 +17,7 @@ class DioFactory {
 
   Future<Dio> getDio([Map<String, String>? headers]) async {
     Dio dio = Dio();
+    dio.interceptors.add(LogInterceptor(responseBody: true)); // Log responses
 
     // String language = await _appPreferences.getAppLanguage();
     Map<String, String> defaultHeaders = {

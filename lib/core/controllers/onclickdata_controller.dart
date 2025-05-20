@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -47,13 +48,17 @@ class DynamicOnClickHandler {
     // Ensure apiCallData is a List
     List<ExternalApiCallModel>? apiCalls = onClickData?.apiCallData;
     if (onClickData?.share == true) {
+      log('this is share click');
       final boundaryKey = globalKeyProvider.repaintBoundaryKey;
       await _captureAndSharePng(boundaryKey, 'From hana platform');
     } else {
+      log('this is not share click');
       if (onClickData?.isOtherRemove == true) {
+        log('this is other remove click');
         formController.savePrerequisitesNameData.clear();
       }
       if (onClickData?.isSelectedRemove == true) {
+        log('this is selected remove click');
         formController.savePrerequisitesNameData
             .where((name) =>
                 name != dName &&
@@ -65,6 +70,7 @@ class DynamicOnClickHandler {
       }
       formController.savePrerequisitesName(context, dName);
       if (onClickData?.isBack == true) {
+        log('this is back click');
         Navigator.pop(context, onClickData?.isBack);
         savePageData.removeLast();
         return;
@@ -72,9 +78,11 @@ class DynamicOnClickHandler {
       bool navigate =
           onClickData?.isForm == true ? formController.isFormValid() : true;
       if (navigate) {
+        log('this is navigate click');
         var pageName = onClickData?.pageName;
-        formController.submitForm();
+        // formController.submitForm();
         if (apiCalls != null && apiCalls.isNotEmpty) {
+          log('this is api call click');
           for (var i = 0; i < apiCalls.length; i++) {
             var apiCall = apiCalls[i];
             bool isLast =
@@ -196,6 +204,7 @@ class DynamicOnClickHandler {
           }
         } else {
           if (onClickData?.pageIndex != null) {
+            log('this is called${onClickData?.pageIndex}');
             formController
                 .onPressed?[onClickData!.pageIndex!](formController.formData);
           } else {
@@ -695,218 +704,218 @@ class DynamicOnClickHandler {
     );
   }
 
-  Future<void> _handleNavigationAndApiCalls() async {
-    if (onClickData?.wantPreviousData == true) {
-      mergedData = {
-        ...formController.formData,
-        ...reFormData,
-      };
-    } else {
-      mergedData = formController.formData;
-    }
-    if (onClickData?.reUseData == true) {
-      reFormData = formController.formData;
-    }
-    onClickData?.isOtherRemove == true
-        ? formController.savePrerequisitesNameData.clear()
-        : null;
-    // start
-    if (onClickData?.isSelectedRemove == true) {
-      formController.savePrerequisitesNameData
-          .where((name) =>
-              name != dName &&
-              (hanaPrerequisiteDesign ?? [])
-                  .any((otherPrerequisite) => otherPrerequisite.name == name))
-          .toList()
-          .forEach((name) =>
-              formController.removePrerequisitesName(context, name as String?));
+  // Future<void> _handleNavigationAndApiCalls() async {
+  //   if (onClickData?.wantPreviousData == true) {
+  //     mergedData = {
+  //       ...formController.formData,
+  //       ...reFormData,
+  //     };
+  //   } else {
+  //     mergedData = formController.formData;
+  //   }
+  //   if (onClickData?.reUseData == true) {
+  //     reFormData = formController.formData;
+  //   }
+  //   onClickData?.isOtherRemove == true
+  //       ? formController.savePrerequisitesNameData.clear()
+  //       : null;
+  //   // start
+  //   if (onClickData?.isSelectedRemove == true) {
+  //     formController.savePrerequisitesNameData
+  //         .where((name) =>
+  //             name != dName &&
+  //             (hanaPrerequisiteDesign ?? [])
+  //                 .any((otherPrerequisite) => otherPrerequisite.name == name))
+  //         .toList()
+  //         .forEach((name) =>
+  //             formController.removePrerequisitesName(context, name as String?));
 
-      // displayController.hanaPrerequisiteDesign!
-      //     .where((prerequisite) =>
-      //         savePrerequisitesNameData.contains(prerequisite.name))
-      //     .toList();
-    }
-    formController.savePrerequisitesName(context, dName);
-    if (onClickData?.isBack == true) {
-      Navigator.pop(context, onClickData?.isBack);
-      savePageData.removeLast();
-      return;
-    }
-    bool navigate = false;
-    if (onClickData?.isForm == true) {
-      formController.isFormValid() ? navigate = true : navigate = false;
-    } else {
-      navigate = true;
-    }
-    if (navigate) {
-      // Proceed with the form submission or navigation
-      if (formController.formData.containsKey('hanaDependent')) {
-        SharedPrefs().hanaDependent = formController.formData['hanaDependent'];
-      }
-      if (formController.formData.containsKey('hanaDateDependent')) {
-        SharedPrefs().hanaDateDependent =
-            formController.formData['hanaDateDependent'];
-      }
-      if (formController.formData.containsKey('hanaMonthDependent')) {
-        SharedPrefs().hanaMonthDependent =
-            formController.formData['hanaMonthDependent'];
-      }
-      if (formController.formData.containsKey('hanaYearDependent')) {
-        SharedPrefs().hanaYearDependent =
-            formController.formData['hanaYearDependent'];
-      }
-      formController.submitForm();
-      if (onClickData?.query != null && onClickData!.query!.isNotEmpty) {
-        // context.read<AuthBloc>().add(AuthBlocDataRefresh(
-        //     mapData: onClickData!.query!,
-        //     previousClear: onClickData!.isPreviousQueryClear));
-      } else {
-        if (onClickData != null) {
-          var apiName = onClickData?.apiName;
-          var pageName = onClickData?.pageName;
-          if (apiName != null && apiName.isNotEmpty) {
-            if (apiName == 'google') {
-              BlocProvider.of<AuthBloc>(context).add(AuthBlocGoogleLoginEvent(
-                mapData: {},
-                pageName: pageName,
-                serverError: onClickData?.serverError,
-              ));
-            } else if (apiName == 'log-out') {
-              SharedPrefs.clearSharedPref();
-              savePageData.clear();
-              Navigator.popUntil(context, (route) => route.isFirst);
-              context.pushReplacement(
-                '/splash',
-                // extra: {'selectedIndex': 0},
-              );
-            } else {
-              mergedData['role'] = SharedPrefs().appRole;
-              mergedData['appName'] = SharedPrefs().appName;
-              BlocProvider.of<AuthBloc>(context).add(
-                AuthBlocCommonLoginEvent(
-                    serverError: onClickData?.serverError,
-                    onClickData: onClickData,
-                    pageName: pageName ?? '',
-                    apiName: apiName,
-                    mapData: mergedData),
-              );
-            }
-          } else {
-            if (onClickData?.pageType == 'bottomNavBar') {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => BottomNavbarPageWrapper(
-                        formController: formController,
-                        bottomNavModel: onClickData?.navBarData,
-                        sideNavModel: onClickData?.sideNavBarData,
-                        // selectedIndex: 0,
-                      )));
-            } else {
-              if (pageName != null && pageName.isNotEmpty) {
-                if (pageName == 'app-login') {
-                  handleNavigation(pageName, onClickData, context);
-                  pageName = SharedPrefs().appFirstPageName;
-                  if (onClickData?.pageReplacement == true) {
-                    context.pushReplacement(
-                      '/dynamic_form',
-                      extra: {'token': '1', 'pageName': pageName},
-                    );
-                  } else {
-                    context.push(
-                      '/dynamic_form',
-                      extra: {'token': '1', 'pageName': pageName},
-                    ).then((result) {
-                      if (result == true) {
-                        // Trigger the refresh event
-                        // context.read<AuthBloc>().add(AuthBlocDataRefresh(
-                        //     mapData: formController.dynamicLookUp,
-                        //     previousClear: true));
-                      }
-                    });
-                  }
-                } else {
-                  handleNavigation(pageName, onClickData, context);
-                  if (onClickData?.pageReplacement == true) {
-                    context.pushReplacement(
-                      '/dynamic_form',
-                      extra: {'token': '1', 'pageName': pageName},
-                    );
-                  } else {
-                    context.push(
-                      '/dynamic_form',
-                      extra: {'token': '1', 'pageName': pageName},
-                    ).then((result) {
-                      if (result == true) {
-                        // Trigger the refresh event
-                        // context.read<AuthBloc>().add(AuthBlocDataRefresh(
-                        //     mapData: formController.dynamicLookUp,
-                        //     previousClear: true));
-                      }
-                    });
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    } else {
-      // Optionally show an error message or handle invalid form state
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(
-      //     content: const Row(
-      //       children: [
-      //         Icon(
-      //           Icons.error_outline,
-      //           color: Colors.white,
-      //           size: 24,
-      //         ),
-      //         SizedBox(width: 12),
-      //         Expanded(
-      //           child: Text(
-      //             "Please correct the errors in the form before submitting.",
-      //             style: TextStyle(
-      //               color: Colors.white,
-      //               fontWeight: FontWeight.bold,
-      //               fontSize: 16,
-      //             ),
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //     backgroundColor: Colors.redAccent,
-      //     behavior: SnackBarBehavior.floating,
-      //     shape: RoundedRectangleBorder(
-      //       borderRadius: BorderRadius.circular(8),
-      //     ),
-      //     action: SnackBarAction(
-      //       label: 'DISMISS',
-      //       textColor: Colors.yellowAccent,
-      //       onPressed: () {
-      //         // Dismiss action
-      //       },
-      //     ),
-      //     duration: const Duration(seconds: 4),
-      //     margin: const EdgeInsets.all(16),
-      //     padding:
-      //         const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      //   ),
-      // );
+  //     // displayController.hanaPrerequisiteDesign!
+  //     //     .where((prerequisite) =>
+  //     //         savePrerequisitesNameData.contains(prerequisite.name))
+  //     //     .toList();
+  //   }
+  //   formController.savePrerequisitesName(context, dName);
+  //   if (onClickData?.isBack == true) {
+  //     Navigator.pop(context, onClickData?.isBack);
+  //     savePageData.removeLast();
+  //     return;
+  //   }
+  //   bool navigate = false;
+  //   if (onClickData?.isForm == true) {
+  //     formController.isFormValid() ? navigate = true : navigate = false;
+  //   } else {
+  //     navigate = true;
+  //   }
+  //   if (navigate) {
+  //     // Proceed with the form submission or navigation
+  //     if (formController.formData.containsKey('hanaDependent')) {
+  //       SharedPrefs().hanaDependent = formController.formData['hanaDependent'];
+  //     }
+  //     if (formController.formData.containsKey('hanaDateDependent')) {
+  //       SharedPrefs().hanaDateDependent =
+  //           formController.formData['hanaDateDependent'];
+  //     }
+  //     if (formController.formData.containsKey('hanaMonthDependent')) {
+  //       SharedPrefs().hanaMonthDependent =
+  //           formController.formData['hanaMonthDependent'];
+  //     }
+  //     if (formController.formData.containsKey('hanaYearDependent')) {
+  //       SharedPrefs().hanaYearDependent =
+  //           formController.formData['hanaYearDependent'];
+  //     }
+  //     formController.submitForm();
+  //     if (onClickData?.query != null && onClickData!.query!.isNotEmpty) {
+  //       // context.read<AuthBloc>().add(AuthBlocDataRefresh(
+  //       //     mapData: onClickData!.query!,
+  //       //     previousClear: onClickData!.isPreviousQueryClear));
+  //     } else {
+  //       if (onClickData != null) {
+  //         var apiName = onClickData?.apiName;
+  //         var pageName = onClickData?.pageName;
+  //         if (apiName != null && apiName.isNotEmpty) {
+  //           if (apiName == 'google') {
+  //             BlocProvider.of<AuthBloc>(context).add(AuthBlocGoogleLoginEvent(
+  //               mapData: {},
+  //               pageName: pageName,
+  //               serverError: onClickData?.serverError,
+  //             ));
+  //           } else if (apiName == 'log-out') {
+  //             SharedPrefs.clearSharedPref();
+  //             savePageData.clear();
+  //             Navigator.popUntil(context, (route) => route.isFirst);
+  //             context.pushReplacement(
+  //               '/splash',
+  //               // extra: {'selectedIndex': 0},
+  //             );
+  //           } else {
+  //             mergedData['role'] = SharedPrefs().appRole;
+  //             mergedData['appName'] = SharedPrefs().appName;
+  //             BlocProvider.of<AuthBloc>(context).add(
+  //               AuthBlocCommonLoginEvent(
+  //                   serverError: onClickData?.serverError,
+  //                   onClickData: onClickData,
+  //                   pageName: pageName ?? '',
+  //                   apiName: apiName,
+  //                   mapData: mergedData),
+  //             );
+  //           }
+  //         } else {
+  //           if (onClickData?.pageType == 'bottomNavBar') {
+  //             Navigator.of(context).push(MaterialPageRoute(
+  //                 builder: (context) => BottomNavbarPageWrapper(
+  //                       formController: formController,
+  //                       bottomNavModel: onClickData?.navBarData,
+  //                       sideNavModel: onClickData?.sideNavBarData,
+  //                       // selectedIndex: 0,
+  //                     )));
+  //           } else {
+  //             if (pageName != null && pageName.isNotEmpty) {
+  //               if (pageName == 'app-login') {
+  //                 handleNavigation(pageName, onClickData, context);
+  //                 pageName = SharedPrefs().appFirstPageName;
+  //                 if (onClickData?.pageReplacement == true) {
+  //                   context.pushReplacement(
+  //                     '/dynamic_form',
+  //                     extra: {'token': '1', 'pageName': pageName},
+  //                   );
+  //                 } else {
+  //                   context.push(
+  //                     '/dynamic_form',
+  //                     extra: {'token': '1', 'pageName': pageName},
+  //                   ).then((result) {
+  //                     if (result == true) {
+  //                       // Trigger the refresh event
+  //                       // context.read<AuthBloc>().add(AuthBlocDataRefresh(
+  //                       //     mapData: formController.dynamicLookUp,
+  //                       //     previousClear: true));
+  //                     }
+  //                   });
+  //                 }
+  //               } else {
+  //                 handleNavigation(pageName, onClickData, context);
+  //                 if (onClickData?.pageReplacement == true) {
+  //                   context.pushReplacement(
+  //                     '/dynamic_form',
+  //                     extra: {'token': '1', 'pageName': pageName},
+  //                   );
+  //                 } else {
+  //                   context.push(
+  //                     '/dynamic_form',
+  //                     extra: {'token': '1', 'pageName': pageName},
+  //                   ).then((result) {
+  //                     if (result == true) {
+  //                       // Trigger the refresh event
+  //                       // context.read<AuthBloc>().add(AuthBlocDataRefresh(
+  //                       //     mapData: formController.dynamicLookUp,
+  //                       //     previousClear: true));
+  //                     }
+  //                   });
+  //                 }
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   } else {
+  //     // Optionally show an error message or handle invalid form state
+  //     // ScaffoldMessenger.of(context).showSnackBar(
+  //     //   SnackBar(
+  //     //     content: const Row(
+  //     //       children: [
+  //     //         Icon(
+  //     //           Icons.error_outline,
+  //     //           color: Colors.white,
+  //     //           size: 24,
+  //     //         ),
+  //     //         SizedBox(width: 12),
+  //     //         Expanded(
+  //     //           child: Text(
+  //     //             "Please correct the errors in the form before submitting.",
+  //     //             style: TextStyle(
+  //     //               color: Colors.white,
+  //     //               fontWeight: FontWeight.bold,
+  //     //               fontSize: 16,
+  //     //             ),
+  //     //           ),
+  //     //         ),
+  //     //       ],
+  //     //     ),
+  //     //     backgroundColor: Colors.redAccent,
+  //     //     behavior: SnackBarBehavior.floating,
+  //     //     shape: RoundedRectangleBorder(
+  //     //       borderRadius: BorderRadius.circular(8),
+  //     //     ),
+  //     //     action: SnackBarAction(
+  //     //       label: 'DISMISS',
+  //     //       textColor: Colors.yellowAccent,
+  //     //       onPressed: () {
+  //     //         // Dismiss action
+  //     //       },
+  //     //     ),
+  //     //     duration: const Duration(seconds: 4),
+  //     //     margin: const EdgeInsets.all(16),
+  //     //     padding:
+  //     //         const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+  //     //   ),
+  //     // );
 
-      DynamicPopupDialog.showPopupDialog(
-        model: DynamicPopupModel(
-          title: "Error",
-          content: formController.validationErrors.values.join('\n'),
-          confirmButtonText: "OK",
+  //     DynamicPopupDialog.showPopupDialog(
+  //       model: DynamicPopupModel(
+  //         title: "Error",
+  //         content: formController.validationErrors.values.join('\n'),
+  //         confirmButtonText: "OK",
 
-          // cancelButtonText: "No",
-          backgroundColor: Colors.white,
-          borderRadius: 10,
-        ),
-        formController: formController,
-        context: context,
-      );
-    }
-  }
+  //         // cancelButtonText: "No",
+  //         backgroundColor: Colors.white,
+  //         borderRadius: 10,
+  //       ),
+  //       formController: formController,
+  //       context: context,
+  //     );
+  //   }
+  // }
 
   // Future<void> _handleApiAndNavigation() async {
   //   final apiName = onClickData?.apiName;
