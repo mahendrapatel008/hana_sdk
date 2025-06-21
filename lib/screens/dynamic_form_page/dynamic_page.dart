@@ -1,5 +1,6 @@
 library hana_sdk;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -144,12 +145,8 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
 
     // Call the background data fetch function
     log('this is appName: ${widget.appName}');
-    log('this is appName!: ${widget.appName != null}');
-    log('this is appName@: ${widget.appName!.isNotEmpty}');
-    log('this is appName#: ${widget.appName != null && widget.appName!.isNotEmpty}');
     if (widget.appName != null && widget.appName!.isNotEmpty) {
       SharedPrefs().appName = widget.appName;
-      log('this is appName^: ${SharedPrefs().appName}');
     }
     SharedPrefs().appModuleName = 'mobileappdesign';
 
@@ -200,9 +197,6 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
       // // Convert raw dynamicData into key-value pairs
       // Map<String, dynamic> dynamicDataKeyValue =
       //     convertDynamicDataToKeyValue(dynamicData);
-
-      // // log("Converted Key-Value Data:111 $dynamicDataKeyValue");
-      // // log("Converted Key-Value DataA:12${json.encoder.convert(dynamicDataKeyValue)}");
 
       // // Save the processed key-value data
       // formController.saveFieldNameData(dynamicDataKeyValue, false);
@@ -300,23 +294,18 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
           clearFromLocal: clearFromLocal);
 
       // Process and convert dynamic data to key-value pairs
-      // log("Raw DynamicData: $dynamicData");
       Map<String, dynamic> dynamicDataKeyValue =
           convertDynamicDataToKeyValue(dynamicData);
 
       // Save the processed key-value data
-      // log("Converted Key-Value DataA: ${json.encoder.convert(dynamicDataKeyValue)}");
       widget.formController.saveFieldNameData(dynamicDataKeyValue, false);
-
-      // Log the updated formController dynamic data
-      // log("Converted Key-Value DataB: ${json.encoder.convert(formController.dynamicData)}");
 
       // Dispatch the RefreshFormEvent only after data processing is complete
       BlocProvider.of<RefreshBloc>(widget.context)
           .add(RefreshFormEvent(check: ''));
     } catch (e) {
       // Handle errors gracefully
-      log("Error in _initFunctions1: $e");
+      log("Error in _initFunctions: $e");
     }
   }
 
@@ -335,7 +324,10 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
 ========================================
 ''');
     super.initState();
-    widget.formController.onPressed = widget.onPressed;
+    if (widget.onPressed != null && widget.onPressed!.isNotEmpty) {
+      utilOnPressed = widget.onPressed;
+    }
+
     SchedulerBinding.instance.addPostFrameCallback((_) => _initFunctions());
   }
 
@@ -520,9 +512,11 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                 // }
                 // EasyLoading.showToast(state.message.toString());
                 if (state.onClickData?.pageIndex != null) {
-                  widget.formController
-                          .onPressed?[state.onClickData!.pageIndex!](
+                  utilOnPressed?[state.onClickData!.pageIndex!](
                       widget.formController.formData);
+                  // widget.formController
+                  //         .onPressed?[state.onClickData!.pageIndex!](
+                  //     widget.formController.formData);
                 } else {
                   if (state.pageName.isNotEmpty) {
                     if (dynamicPageName == dynamicPageNameString) {
@@ -534,18 +528,17 @@ class _DynamicFormScreenState extends State<DynamicFormScreen> {
                           extra: {
                             'token': '1',
                             'pageName': state.pageName,
-                            'onPressed': widget.formController.onPressed,
+                            'onPressed': utilOnPressed,
                             'context': context,
                           },
                         );
                       } else {
-                        log("this is pageName: ${state.pageName}");
                         _router.push(
                           '/dynamic_form',
                           extra: {
                             'token': '1',
                             'pageName': state.pageName,
-                            'onPressed': widget.formController.onPressed,
+                            'onPressed': utilOnPressed,
                             'context': context,
                           },
                         );

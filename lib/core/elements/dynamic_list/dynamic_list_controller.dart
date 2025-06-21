@@ -199,7 +199,6 @@ class _DynamicListControllerState extends State<DynamicListController> {
     return FutureBuilder<void>(
         future: _initLoad(displayController),
         builder: (context, snapshot) {
-          log("This has been called");
           return !containsAllPrerequisites &&
                   (itemsData != null && itemsData!.isNotEmpty)
               ? SizedBox(
@@ -226,7 +225,6 @@ class _DynamicListControllerState extends State<DynamicListController> {
                         //     ApiElementController(formSectionsElements: formElement);
                         // formWidgets = apiElementController.buildFormElement();
                         itemsData?[index].forEach((key, value) {
-                          print('Key:???? $key, Value: $value');
                           saveDynamicValue(key, value);
                         });
                         saveDynamicValue('index', index);

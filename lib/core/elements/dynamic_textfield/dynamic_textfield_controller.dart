@@ -51,14 +51,12 @@ class _DynamicTextFieldControllerState extends State<DynamicTextFieldController>
     isPassVisible = widget.controller.obscureText ?? false;
 
     if (widget.controller.required == true && (constText.text.isEmpty)) {
-      print("cnhsbfdsdbhbhs");
       widget.formController.setValidationState(widget.controller.name ?? '',
           widget.controller.validator ?? 'This field is required');
     }
   }
 
   void _validate(String? value, DynamicTextFieldModel displayController) {
-    print('cnhsbfdsdbhbhAAA$value');
     if (displayController.required == true) {
       if (displayController.regex != null &&
           displayController.regex!.isNotEmpty) {
@@ -73,7 +71,6 @@ class _DynamicTextFieldControllerState extends State<DynamicTextFieldController>
         }
       } else {
         if (value == null || value.isEmpty) {
-          print("cnhsbfdsdbhbhBBB");
           errorMessage =
               displayController.validator ?? 'This field is required';
         } else {
@@ -81,7 +78,6 @@ class _DynamicTextFieldControllerState extends State<DynamicTextFieldController>
         }
       }
       if (errorMessage != null) {
-        print("cnhsbfdsdbhbhssss");
         widget.formController
             .setValidationState(displayController.name ?? '', errorMessage);
       }

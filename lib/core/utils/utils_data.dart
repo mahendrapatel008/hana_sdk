@@ -299,6 +299,8 @@ Future<void> handleNavigation(
   // context.push('/dynamic_form', extra: {'token': '1', 'pageName': pageName});
 }
 
+List<Function(Map<String, dynamic>)>? utilOnPressed;
+
 Future<String> resolveDynamicValue(
     String? dataKey, String? label, FormController formController) async {
   if (dataKey == null || dataKey.isEmpty) {

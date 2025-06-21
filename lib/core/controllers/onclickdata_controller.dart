@@ -12,7 +12,6 @@ import 'package:hana_sdk/core/comman_bloc/auth_bloc/auth_bloc.dart';
 import 'package:hana_sdk/core/comman_bloc/auth_bloc/auth_event.dart';
 import 'package:hana_sdk/core/comman_bloc/auth_bloc/auth_state.dart';
 import 'package:hana_sdk/core/controllers/form_controller.dart';
-import 'package:hana_sdk/core/elements/dynamic_bottom_navbar/dynamic_bottom_navbar.dart';
 import 'package:hana_sdk/core/elements/dynamic_popup/dynamic_popup_dialog.dart';
 import 'package:hana_sdk/core/elements/dynamic_popup/dynamic_popup_model.dart';
 import 'package:hana_sdk/core/model/external_api_call_model.dart';
@@ -48,17 +47,13 @@ class DynamicOnClickHandler {
     // Ensure apiCallData is a List
     List<ExternalApiCallModel>? apiCalls = onClickData?.apiCallData;
     if (onClickData?.share == true) {
-      log('this is share click');
       final boundaryKey = globalKeyProvider.repaintBoundaryKey;
       await _captureAndSharePng(boundaryKey, 'From hana platform');
     } else {
-      log('this is not share click');
       if (onClickData?.isOtherRemove == true) {
-        log('this is other remove click');
         formController.savePrerequisitesNameData.clear();
       }
       if (onClickData?.isSelectedRemove == true) {
-        log('this is selected remove click');
         formController.savePrerequisitesNameData
             .where((name) =>
                 name != dName &&
@@ -70,7 +65,6 @@ class DynamicOnClickHandler {
       }
       formController.savePrerequisitesName(context, dName);
       if (onClickData?.isBack == true) {
-        log('this is back click');
         Navigator.pop(context, onClickData?.isBack);
         savePageData.removeLast();
         return;
@@ -78,11 +72,9 @@ class DynamicOnClickHandler {
       bool navigate =
           onClickData?.isForm == true ? formController.isFormValid() : true;
       if (navigate) {
-        log('this is navigate click');
         var pageName = onClickData?.pageName;
         // formController.submitForm();
         if (apiCalls != null && apiCalls.isNotEmpty) {
-          log('this is api call click');
           for (var i = 0; i < apiCalls.length; i++) {
             var apiCall = apiCalls[i];
             bool isLast =
@@ -146,7 +138,7 @@ class DynamicOnClickHandler {
               }
             } else {
               if (onClickData?.pageIndex != null) {
-                formController.onPressed?[onClickData!.pageIndex!](
+                utilOnPressed?[onClickData!.pageIndex!](
                     formController.formData);
               } else {
                 if (pageName != null && pageName.isNotEmpty) {
@@ -159,7 +151,7 @@ class DynamicOnClickHandler {
                         extra: {
                           'token': '1',
                           'pageName': pageName,
-                          'onPressed': formController.onPressed,
+                          'onPressed': utilOnPressed,
                           'context': context,
                         },
                       );
@@ -169,7 +161,7 @@ class DynamicOnClickHandler {
                         extra: {
                           'token': '1',
                           'pageName': pageName,
-                          'onPressed': formController.onPressed,
+                          'onPressed': utilOnPressed,
                           'context': context,
                         },
                       );
@@ -182,7 +174,7 @@ class DynamicOnClickHandler {
                         extra: {
                           'token': '1',
                           'pageName': pageName,
-                          'onPressed': formController.onPressed,
+                          'onPressed': utilOnPressed,
                           'context': context,
                         },
                       );
@@ -192,7 +184,7 @@ class DynamicOnClickHandler {
                         extra: {
                           'token': '1',
                           'pageName': pageName,
-                          'onPressed': formController.onPressed,
+                          'onPressed': utilOnPressed,
                           'context': context,
                         },
                       );
@@ -204,9 +196,7 @@ class DynamicOnClickHandler {
           }
         } else {
           if (onClickData?.pageIndex != null) {
-            log('this is called${onClickData?.pageIndex}');
-            formController
-                .onPressed?[onClickData!.pageIndex!](formController.formData);
+            utilOnPressed?[onClickData!.pageIndex!](formController.formData);
           } else {
             if (pageName != null && pageName.isNotEmpty) {
               if (pageName == 'app-login') {

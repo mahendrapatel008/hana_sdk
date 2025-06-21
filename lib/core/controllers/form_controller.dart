@@ -29,7 +29,6 @@ class FormController extends ChangeNotifier {
         : '';
     String appModuleName =
         formData.containsKey('AppModuleName') ? formData['AppModuleName'] : '';
-    print('bdbdbdddbdb${appName}');
     userName.isNotEmpty ? SharedPrefs().userName = userName : null;
     appName.isNotEmpty ? SharedPrefs().appName = appName : null;
     appRole.isNotEmpty ? SharedPrefs().appRole = appRole : null;
@@ -121,13 +120,10 @@ class FormController extends ChangeNotifier {
         } else {
           dynamicData[key] = value;
         }
-        print('NameData:>>a $value');
       });
     } else {
       dynamicData.addAll(data);
     }
-    print('NameData:>> $data');
-    print('NameData:>> $dynamicData');
     notifyListeners();
   }
 
@@ -142,20 +138,20 @@ class FormController extends ChangeNotifier {
     return dynamicData[fieldName];
   }
 
-  // void updateFieldNameData(Map<String, dynamic> data) {
-  //   if (dynamicData.isNotEmpty) {
-  //     data.forEach((key, value) {
-  //       print('Key:???? $key, Value: $value');
-  //       if (dynamicData.containsKey(key)) {
-  //         dynamicData[key] = value;
-  //       }
-  //     });
-  //   } else {
-  //     dynamicData.addAll(data);
-  //   }
-  //   print('NameData: $dynamicData');
-  //   notifyListeners();
-  // }
+  void updateFieldNameData(Map<String, dynamic> data) {
+    if (dynamicData.isNotEmpty) {
+      data.forEach((key, value) {
+        print('Key:???? $key, Value: $value');
+        if (dynamicData.containsKey(key)) {
+          dynamicData[key] = value;
+        }
+      });
+    } else {
+      dynamicData.addAll(data);
+    }
+    print('NameData: $dynamicData');
+    notifyListeners();
+  }
 
   void clearFieldNameData() {
     dynamicData.clear();

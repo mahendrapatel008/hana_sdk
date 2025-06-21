@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:hana_sdk/core/elements/dynamic_bottom_navbar/dynamic_bottom_navbar_model.dart';
 import 'package:hana_sdk/core/elements/dynamic_popup/dynamic_popup_model.dart';
@@ -119,31 +120,34 @@ class OnClickData {
       parsedSideNavBarData = null;
     }
     List<ExternalApiCallModel>? apiCallDatas;
-
-    if (json['apiName'] is String) {
-      try {
-        final decoded = jsonDecode(json['apiName']);
-        if (decoded is Map<String, dynamic>) {
-          apiCallDatas = [ExternalApiCallModel.fromJson(decoded)];
-        } else if (decoded is List) {
-          apiCallDatas = decoded
-              .map((item) =>
-                  ExternalApiCallModel.fromJson(item as Map<String, dynamic>))
-              .toList();
+    if (json['apiName'] != null &&
+        json['apiName'] != '[]' &&
+        json['apiName'] != '') {
+      if (json['apiName'] is String) {
+        try {
+          final decoded = jsonDecode(json['apiName']);
+          if (decoded is Map<String, dynamic>) {
+            apiCallDatas = [ExternalApiCallModel.fromJson(decoded)];
+          } else if (decoded is List) {
+            apiCallDatas = decoded
+                .map((item) =>
+                    ExternalApiCallModel.fromJson(item as Map<String, dynamic>))
+                .toList();
+          }
+        } catch (e) {
+          print("Error decoding JSON stringA: $e");
+          apiCallDatas = null;
         }
-      } catch (e) {
-        print("Error decoding JSON string: $e");
+      } else if (json['apiName'] is Map<String, dynamic>) {
+        apiCallDatas = [ExternalApiCallModel.fromJson(json['apiName'])];
+      } else if (json['apiName'] is List) {
+        apiCallDatas = (json['apiName'] as List)
+            .map((item) =>
+                ExternalApiCallModel.fromJson(item as Map<String, dynamic>))
+            .toList();
+      } else {
         apiCallDatas = null;
       }
-    } else if (json['apiName'] is Map<String, dynamic>) {
-      apiCallDatas = [ExternalApiCallModel.fromJson(json['apiName'])];
-    } else if (json['apiName'] is List) {
-      apiCallDatas = (json['apiName'] as List)
-          .map((item) =>
-              ExternalApiCallModel.fromJson(item as Map<String, dynamic>))
-          .toList();
-    } else {
-      apiCallDatas = null;
     }
     ImagePickerModel? imagePickerDatas;
     if (json['imagePickerData'] is Map<String, dynamic>) {
